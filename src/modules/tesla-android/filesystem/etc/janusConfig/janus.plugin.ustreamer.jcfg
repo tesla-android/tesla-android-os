@@ -1,0 +1,3 @@
+memsink: {
+	object = "ustreamer::h264"
+}

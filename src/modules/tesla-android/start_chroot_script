@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# Tesla Android module
+# Written by Michał Gapiński
+# GPL V3
+########
+
+set -x
+set -e
+
+source /common.sh
+install_cleanup_trap
+
+cd /home/${BASE_USER}
+
+echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
+echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
+
+apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libmicrohttpd-dev \
+    libjansson-dev \
+    libssl-dev \
+    libsrtp-dev \
+    libsofia-sip-ua-dev \
+    libglib2.0-dev \
+    libopus-dev \
+    libogg-dev \
+    libcurl4-openssl-dev \
+    liblua5.3-dev \
+    libconfig-dev \
+    pkg-config \
+    gengetopt \
+    libtool \
+    automake \
+    cmake \
+    make \
+    wget \
+    git \
+    build-essential \
+    ninja-build \
+    python3 \
+    python3-pip \
+    libevent-dev \
+    libjpeg9-dev \
+    libbsd-dev \
+    libraspberrypi-dev \
+    coturn \
+    iptables-persistent \
+    hostapd \
+    bridge-utils \
+    urfkill
+    
+pip3 install meson
+
+git clone https://gitlab.freedesktop.org/libnice/libnice && \
+    cd libnice && \
+    meson --prefix=/usr build && ninja -C build && sudo ninja -C build install && \
+    cd /home/${BASE_USER}
+    
+wget https://github.com/cisco/libsrtp/archive/v2.2.0.tar.gz && \
+    tar xfv v2.2.0.tar.gz && \
+    cd libsrtp-2.2.0 && \
+    ./configure --prefix=/usr --enable-openssl && \
+    make shared_library && sudo make install && \
+    cd /home/${BASE_USER}   
+    
+git clone https://libwebsockets.org/repo/libwebsockets && \
+    cd libwebsockets && \
+    mkdir build && \
+    cd build && \
+    cmake -DLWS_MAX_SMP=1 -DLWS_WITHOUT_EXTENSIONS=0 -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_C_FLAGS="-fpic" .. && \
+    make && sudo make install && \
+    cd /home/${BASE_USER}
+    
+git clone https://github.com/meetecho/janus-gateway.git && \
+    cd janus-gateway && \
+    sh autogen.sh && \
+    ./configure --prefix=/opt/janus --disable-data-channels --disable-rabbitmq --disable-mqtt && \
+    make && make install && \
+    cd /home/${BASE_USER}
+  
+ln -s /opt/janus/include/janus /usr/include/janus && \
+    sed -i -e 's|^#include "refcount.h"$|#include "../refcount.h"|g' "/usr/include/janus/plugins/plugin.h"
+    
+git clone --depth=1 https://github.com/pikvm/ustreamer && \
+    cd ustreamer && \
+    make WITH_JANUS=1 && \
+    mv janus/libjanus_ustreamer.so /opt/janus/lib/janus/plugins/libjanus_ustreamer.so && \
+    make && make install && \
+    cd /home/${BASE_USER}
+
+rm -rf libnice
+rm -rf v2.2.0.tar.gz
+rm -rf libsrtp-2.2.0
+rm -rf libwebsockets 
+rm -rf janus-gateway
+rm -rf ustreamer
+
+unpack /filesystem/home/pi /home/"${BASE_USER}" "${BASE_USER}"
+unpack /filesystem/etc /etc
+
+systemctl enable hostapd.service
+systemctl enable janus.service
+systemctl enable ustreamer.service
+systemctl enable coturn.service
+
+echo 'dtoverlay=tc358743' >> /boot/config.txt
+echo 'start_x=1' >> /boot/config
+
+curl -L https://install.pi-hole.net | sudo PIHOLE_SKIP_OS_CHECK=true bash /dev/stdin --unattended
+
+cd /var/www
+mv html html-old
+git clone https://github.com/tesla-android/flutter-app.git -b release html
+mv html-old/pihole html
+mv html-old/admin html
+rm -rf html-old
+cd /home/${BASE_USER}
+
+rfkill unblock wifi

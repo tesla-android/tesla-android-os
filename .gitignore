@@ -1,0 +1,12 @@
+src/config.local
+src/custompios_path
+src/image/*.zip
+**/key.json
+src/workspace-*
+src/workspace
+src/build.log
+src/vagrant/*.log
+src/vagrant/.vagrant
+.vscode
+.idea
+.DS_Store

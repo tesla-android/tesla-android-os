@@ -1,0 +1,10 @@
+[Unit]
+Description=janus service
+After=network.target
+[Service]
+Restart=on-failure
+RestartSec=5s
+User=pi
+ExecStart=/opt/janus/bin/janus -F /etc/janusConfig/ -P /opt/janus/lib/janus/plugins/ --stun-server=3.3.3.1:3478 --nat-1-1=3.3.3.1 --ice-lite --ice-tcp
+[Install]
+WantedBy=multi-user.target
