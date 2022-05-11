@@ -48,7 +48,8 @@ apt-get update && \
     iptables-persistent \
     hostapd \
     bridge-utils \
-    urfkill
+    urfkill \
+    usbmuxd
     
 pip3 install meson
 
