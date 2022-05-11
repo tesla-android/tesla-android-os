@@ -49,7 +49,9 @@ apt-get update && \
     hostapd \
     bridge-utils \
     urfkill \
-    usbmuxd
+    usbmuxd \
+    ipheth-utils \
+    libimobiledevice-utils
     
 pip3 install meson
 
