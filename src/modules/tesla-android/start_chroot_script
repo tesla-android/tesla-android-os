@@ -23,6 +23,7 @@ apt-get update && \
     build-essential \
     libevent-dev \
     libjpeg9-dev \
+    libbsd-dev \
     iptables-persistent \
     hostapd \
     bridge-utils \
