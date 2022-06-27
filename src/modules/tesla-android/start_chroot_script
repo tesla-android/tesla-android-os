@@ -27,8 +27,11 @@ apt-get update && \
     iptables-persistent \
     hostapd \
     bridge-utils \
-    urfkill
-        
+    urfkill \
+    usbmuxd \
+    ipheth-utils \
+    libimobiledevice-utils
+
 git clone --depth=1 https://github.com/pikvm/ustreamer && \
     cd ustreamer && \
     make && \
