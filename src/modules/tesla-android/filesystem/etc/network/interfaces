@@ -8,6 +8,10 @@ auto wlan0
 allow-hotplug wlan0
 iface wlan0 inet manual
 
+auto eth1
+allow-hotplug eth1
+iface eth1 inet dhcp
+
 auto br0
 iface br0 inet static
 	address 3.3.3.1
