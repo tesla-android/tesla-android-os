@@ -56,4 +56,7 @@ mv html-old/admin html
 rm -rf html-old
 cd /home/${BASE_USER}
 
+rm -rf cd /etc/lighttpd/lighttpd.conf
+mv /etc/lighttpd/lighttpd.conf.new /etc/lighttpd/lighttpd.conf
+
 rfkill unblock wifi
