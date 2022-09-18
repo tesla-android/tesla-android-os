@@ -1,5 +1,5 @@
 export DIST_NAME=Tesla-Android-OS
-export DIST_VERSION=2022.25.1
+export DIST_VERSION=2022.27.1
 
 export MODULES="base(tesla-android)"
 
